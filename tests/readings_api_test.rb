@@ -242,6 +242,22 @@ class ReadingsAPITest < TestHelper
   end
 
 
+  def test_post_readings_with_negative_count_returns_400
+    body = {
+      id: 'device-negative-count',
+      readings: [
+        { timestamp: '2021-09-29T16:08:15+01:00', count: -5 }
+      ]
+    }
+
+    res = post_request('/readings', body)
+
+    assert_equal '400', res.code
+    response_body = parse_json_body(res)
+    assert_match(/invalid count.*non-negative/, response_body['error'])
+  end
+
+
   def test_post_readings_with_malformed_json_returns_400
     res = post_request_raw('/readings', '{"id": "test", "readings": [invalid json}', 'application/json')
 

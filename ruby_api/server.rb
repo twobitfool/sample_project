@@ -75,6 +75,10 @@ class DeviceAPI < App
       unless count.is_a?(Integer)
         halt 400, "invalid count: #{count} (must be an integer)"
       end
+
+      if count < 0
+        halt 400, "invalid count: #{count} (must be non-negative)"
+      end
     end
   end
 

@@ -51,7 +51,7 @@ POST /readings
 | id | string | Yes | UUID identifying the device |
 | readings | array | Yes | Array of reading objects |
 | readings[].timestamp | string | Yes | ISO-8601 formatted timestamp |
-| readings[].count | integer | Yes | Reading count value |
+| readings[].count | integer | Yes | Reading count value (must be non-negative) |
 
 **Example Request:**
 
