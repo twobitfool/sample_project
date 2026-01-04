@@ -55,10 +55,10 @@ end
 all_passed = true
 
 api_dirs.each do |api_dir|
-  server_path = File.join(api_dir, 'server.rb')
+  dev_path = File.join(api_dir, 'bin', 'dev')
 
-  unless File.exist?(server_path)
-    puts "Skipping #{api_dir}: no server.rb found"
+  unless File.exist?(dev_path)
+    puts "Skipping #{api_dir}: no bin/dev found"
     next
   end
 
@@ -70,8 +70,8 @@ api_dirs.each do |api_dir|
   puts "Starting #{api_dir} server on port #{TEST_PORT}..."
   server_pid = spawn(
     { 'PORT' => TEST_PORT.to_s },
-    'ruby',
-    server_path,
+    'bash',
+    dev_path,
     out: '/dev/null',
     err: '/dev/null'
   )
