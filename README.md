@@ -34,6 +34,25 @@ bin/test
 - `bin/` - Development and testing scripts
 
 
+## Future Improvements
+
+- Switch to a real web server (e.g. Puma, Unicorn)
+- Use a battle-tested web framework (e.g. Ruby on Rails)
+- Auth and security (API keys, HTTPS)
+- DoS protection, WAF, etc
+- Better docs, logging, and error handling
+- Load testing, rate limiting, and async storage processing
+- Persistent storage for device readings (with caching for recent data)
+  - Or more efficient memory-based storage
+    - Sorted linked list for storage of readings
+    - Automatic pruning of old readings
+    - Add mutexes for thread safety
+- Define and enforce behavior for edge cases:
+  - Should a device be created if there is an empty `readings` array?
+  - Does `count` have a maximum value? Are negative values allowed?
+  - Should devices be registered _before_ readings can be stored?
+
+
 ## API Documentation
 
 ### Store Device Readings
