@@ -168,3 +168,5 @@ curl http://localhost:3000/devices/36d5658a-6908-479e-887e-a949ec199272/total_co
 This project was structured to support multiple implementations of the API --
 each contained within its own `*_api` folder -- to explore how the same
 functionality can be achieved in different programming languages and frameworks.
+
+[Check out the full repository](https://github.com/twobitfool/sample_project) for more info!
