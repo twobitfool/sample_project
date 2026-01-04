@@ -46,10 +46,11 @@ class App
     route = self.class.router.match(webrick_req.request_method, webrick_req.path)
 
     if route
-      req = Request.new(webrick_req, route[:params])
       res = Response.new
 
       begin
+        req = Request.new(webrick_req, route[:params])
+
         result = catch(:halt) do
           instance_exec(req, res, &route[:handler])
           nil
@@ -63,6 +64,10 @@ class App
         webrick_res.status = res.status
         webrick_res.body = res.body
         res.headers.each { |k, v| webrick_res[k] = v }
+      rescue MalformedJSONError => e
+        webrick_res.status = 400
+        webrick_res.body = { error: e.message }.to_json
+        webrick_res['Content-Type'] = 'application/json'
       rescue => e
         webrick_res.status = 500
         webrick_res.body = { error: e.message }.to_json

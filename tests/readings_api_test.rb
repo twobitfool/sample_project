@@ -241,4 +241,13 @@ class ReadingsAPITest < TestHelper
     assert_equal 'count is required for each reading', response_body['error']
   end
 
+
+  def test_post_readings_with_malformed_json_returns_400
+    res = post_request_raw('/readings', '{"id": "test", "readings": [invalid json}', 'application/json')
+
+    assert_equal '400', res.code
+    response_body = parse_json_body(res)
+    assert_equal 'Malformed JSON payload', response_body['error']
+  end
+
 end
