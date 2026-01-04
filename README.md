@@ -72,6 +72,8 @@ curl -X POST http://localhost:3000/readings \
 - `200 OK` - Readings stored successfully
 - `400 Bad Request` - Missing or invalid parameters
 
+> **Note:** The spec did not clearly define the behavior when the `readings` array is empty. Currently, the API will still create the device, but the device will have a `total_count = 0` and a `latest_timestamp = null` until readings are added.
+
 
 ### Get Latest Timestamp
 

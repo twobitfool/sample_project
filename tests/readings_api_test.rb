@@ -250,4 +250,45 @@ class ReadingsAPITest < TestHelper
     assert_equal 'Malformed JSON payload', response_body['error']
   end
 
+
+  # An empty readings array will still create the device -- it will just have
+  # a total_count of 0 and a latest_timestamp of null.
+
+  def test_post_readings_with_empty_array_creates_device
+    device_id = 'device-empty-readings'
+    body = { id: device_id, readings: [] }
+
+    res = post_request('/readings', body)
+
+    assert_equal '200', res.code
+    response_body = parse_json_body(res)
+    assert_equal true, response_body['success']
+  end
+
+
+  def test_device_with_empty_readings_has_zero_total_count
+    device_id = 'device-empty-count'
+    body = { id: device_id, readings: [] }
+    post_request('/readings', body)
+
+    res = get_request("/devices/#{device_id}/total_count")
+
+    assert_equal '200', res.code
+    response_body = parse_json_body(res)
+    assert_equal 0, response_body['total_count']
+  end
+
+
+  def test_device_with_empty_readings_has_null_latest_timestamp
+    device_id = 'device-empty-timestamp'
+    body = { id: device_id, readings: [] }
+    post_request('/readings', body)
+
+    res = get_request("/devices/#{device_id}/latest_timestamp")
+
+    assert_equal '200', res.code
+    response_body = parse_json_body(res)
+    assert_nil response_body['latest_timestamp']
+  end
+
 end
