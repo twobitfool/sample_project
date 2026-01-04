@@ -189,4 +189,54 @@ class DeviceTest < Minitest::Test
     refute device.readings.empty?
   end
 
+
+  def test_total_count_returns_zero_with_no_readings
+    device = Device.create!(uid: 'device-001')
+    assert_equal 0, device.total_count
+  end
+
+
+  def test_total_count_sums_all_reading_counts
+    device = Device.create!(uid: 'device-001')
+    device.readings.find_or_create_by(timestamp: "2024-01-01T00:00:00Z") { |r| r.count = 5 }
+    device.readings.find_or_create_by(timestamp: "2024-01-02T00:00:00Z") { |r| r.count = 10 }
+    device.readings.find_or_create_by(timestamp: "2024-01-03T00:00:00Z") { |r| r.count = 3 }
+
+    assert_equal 18, device.total_count
+  end
+
+
+  def test_total_count_unaffected_by_duplicate_timestamp
+    device = Device.create!(uid: 'device-001')
+    device.readings.find_or_create_by(timestamp: "2024-01-01T00:00:00Z") { |r| r.count = 5 }
+    device.readings.find_or_create_by(timestamp: "2024-01-02T00:00:00Z") { |r| r.count = 10 }
+
+    assert_equal 15, device.total_count
+
+    # Attempt to add duplicate timestamp with different count
+    device.readings.find_or_create_by(timestamp: "2024-01-01T00:00:00Z") { |r| r.count = 100 }
+
+    assert_equal 15, device.total_count
+    assert_equal 2, device.readings.count
+  end
+
+
+  def test_latest_timestamp_returns_nil_with_no_readings
+    device = Device.create!(uid: 'device-001')
+    assert_nil device.latest_timestamp
+  end
+
+
+  def test_latest_timestamp_returns_most_recent
+    device = Device.create!(uid: 'device-001')
+
+    # Note: This test is sending the timestamps out of order, to make sure the
+    # latest_timestamp method correctly returns the most recent timestamp.
+    device.readings.find_or_create_by(timestamp: "2024-01-01T00:00:00Z") { |r| r.count = 1 }
+    device.readings.find_or_create_by(timestamp: "2024-01-03T00:00:00Z") { |r| r.count = 2 }
+    device.readings.find_or_create_by(timestamp: "2024-01-02T00:00:00Z") { |r| r.count = 3 }
+
+    assert_equal Time.parse("2024-01-03T00:00:00Z"), device.latest_timestamp
+  end
+
 end

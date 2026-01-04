@@ -35,6 +35,16 @@ class Device
   end
 
 
+  def total_count
+    readings.sum(&:count)
+  end
+
+
+  def latest_timestamp
+    readings.map(&:timestamp).max
+  end
+
+
   class << self
 
     def find(id)
