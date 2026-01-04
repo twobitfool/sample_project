@@ -37,6 +37,8 @@ class App
   end
 
 
+  # This method is used to halt the execution (of an API endpoint) and return a
+  # specific status code and message. Similar to the convention used in Sinatra.
   def halt(status, message)
     throw :halt, { status: status, error: message }
   end

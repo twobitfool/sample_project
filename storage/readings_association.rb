@@ -23,6 +23,11 @@ class ReadingsAssociation
   end
 
 
+  # Note: This implementation currently does NOT implement the locking needed
+  # to avoid a race condition that would allow the creation of multiple readings
+  # with the same timestamp. If this were implemented with a database, we would
+  # probably add a UNIQUE constraint on the timestamp field.
+
   def find_or_create_by(timestamp:, &block)
     storage = DeviceAndReadingStorage.instance
     parsed_timestamp = timestamp.is_a?(Time) ? timestamp : Time.parse(timestamp)

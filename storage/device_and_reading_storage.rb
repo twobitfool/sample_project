@@ -5,6 +5,9 @@ require 'time'
 class DeviceAndReadingStorage
   include Singleton
 
+  # Note: Using `instance_variable_set` to set the `id` attribute on the device
+  # and reading to make this feel like a database-backed ORM where the database
+  # is automatically incrementing the `id` attribute.
 
   def initialize
     @devices_by_id = {}
