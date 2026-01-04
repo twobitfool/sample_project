@@ -1,0 +1,27 @@
+#!/usr/bin/env ruby
+
+require 'fileutils'
+
+# Change to the ruby_api directory
+Dir.chdir(File.expand_path('..', __dir__))
+
+puts "Checking Ruby version..."
+
+ruby_version = RUBY_VERSION.split('.').map(&:to_i)
+major_version = ruby_version[0]
+
+if major_version < 3
+  puts "Ruby version #{RUBY_VERSION} detected."
+  puts "Gems (webrick, minitest, json) are included in Ruby < 3.0 - skipping installation."
+else
+  puts "Ruby version #{RUBY_VERSION} detected."
+  puts "Installing dependencies (webrick required for Ruby >= 3.0)..."
+
+  unless system('bundle install')
+    puts "Error: Failed to install gems"
+    exit 1
+  end
+end
+
+puts ""
+puts "Setup complete!"

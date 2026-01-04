@@ -1,0 +1,125 @@
+#!/usr/bin/env ruby
+
+require 'fileutils'
+
+# Change to project root
+Dir.chdir(File.expand_path('..', __dir__))
+
+TEST_PORT = ENV['TEST_PORT'] || 8080
+
+# Find all *_api directories
+api_dirs = Dir.glob('*_api').select { |dir| File.directory?(dir) }
+
+if api_dirs.empty?
+  puts "No API directories found"
+  exit 1
+end
+
+# Find all test files
+test_files = Dir.glob(File.join('tests', '*_test.rb'))
+
+if test_files.empty?
+  puts "No test files found in tests directory"
+  exit 1
+end
+
+def wait_for_server(port, timeout_seconds = 10)
+  require 'net/http'
+  require 'uri'
+
+  print "Waiting for server to start"
+  start_time = Time.now
+
+  loop do
+    begin
+      uri = URI("http://localhost:#{port}/ping")
+      res = Net::HTTP.get_response(uri)
+      if res.code == '200'
+        puts " ready!"
+        return true
+      end
+    rescue Errno::ECONNREFUSED, Errno::ECONNRESET, Errno::ETIMEDOUT
+      # Server not ready yet
+    end
+
+    if Time.now - start_time > timeout_seconds
+      puts " TIMEOUT!"
+      return false
+    end
+
+    print "."
+    sleep 0.5
+  end
+end
+
+all_passed = true
+
+api_dirs.each do |api_dir|
+  server_path = File.join(api_dir, 'server.rb')
+
+  unless File.exist?(server_path)
+    puts "Skipping #{api_dir}: no server.rb found"
+    next
+  end
+
+  puts "\n" + "="*60
+  puts "Testing #{api_dir}"
+  puts "="*60
+
+  # Start the server
+  puts "Starting #{api_dir} server on port #{TEST_PORT}..."
+  server_pid = spawn(
+    { 'PORT' => TEST_PORT.to_s },
+    'ruby',
+    server_path,
+    out: '/dev/null',
+    err: '/dev/null'
+  )
+
+  # Wait for server to be ready
+  unless wait_for_server(TEST_PORT)
+    puts "Failed to start server for #{api_dir}"
+    Process.kill('TERM', server_pid) rescue nil
+    Process.wait(server_pid) rescue nil
+    all_passed = false
+    next
+  end
+
+  # Run the tests
+  puts "\nRunning tests against #{api_dir}...\n"
+
+  # Create a child process to run the tests
+  test_pid = fork do
+    ENV['TEST_PORT'] = TEST_PORT.to_s
+    ENV['TESTING_API'] = api_dir
+
+    # Require test helper first
+    require_relative '../tests/test_helper'
+
+    # Load all test files
+    test_files.each do |file|
+      require File.expand_path(file)
+    end
+  end
+
+  # Wait for tests to complete
+  _, status = Process.wait2(test_pid)
+
+  # Stop the server
+  puts "\nStopping #{api_dir} server..."
+  Process.kill('TERM', server_pid) rescue nil
+  Process.wait(server_pid) rescue nil
+
+  unless status.success?
+    all_passed = false
+  end
+end
+
+puts "\n" + "="*60
+if all_passed
+  puts "All tests passed!"
+  exit 0
+else
+  puts "Some tests failed"
+  exit 1
+end

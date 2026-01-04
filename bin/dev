@@ -1,0 +1,138 @@
+#!/usr/bin/env ruby
+
+require 'fileutils'
+require 'socket'
+
+# Change to project root
+Dir.chdir(File.expand_path('..', __dir__))
+
+# Track all spawned process PIDs
+@pids = []
+
+# ANSI color codes
+BOLD = "\e[1m"
+GREEN = "\e[32m"
+CYAN = "\e[36m"
+YELLOW = "\e[33m"
+RESET = "\e[0m"
+
+# Check if a port is available
+def port_available?(port)
+  server = TCPServer.new('0.0.0.0', port)
+  server.close
+  true
+rescue Errno::EADDRINUSE, Errno::EACCES
+  false
+end
+
+# Find the next available port starting from the given port
+def find_available_port(starting_port)
+  10.times do |i|
+    port = starting_port + i
+    if port_available?(port)
+      return port
+    else
+      puts "#{YELLOW}Port #{port} is in use, trying next port...#{RESET}"
+    end
+  end
+
+  raise "No available ports found"
+end
+
+# Display port summary in a nice box
+def display_port_summary(api_ports)
+  max_name_length = api_ports.keys.map(&:length).max
+  box_width = [max_name_length + 35, 50].max
+
+  puts ""
+  puts "#{BOLD}#{GREEN}#{'=' * box_width}#{RESET}"
+  puts "#{BOLD}#{GREEN}  API SERVICE STATUS #{RESET}"
+  puts "#{BOLD}#{GREEN}#{'=' * box_width}#{RESET}"
+  puts ""
+
+  api_ports.each do |api_name, port|
+    formatted_name = api_name.ljust(max_name_length)
+    url = "http://localhost:#{port}"
+    puts "  #{CYAN}#{BOLD}#{formatted_name}#{RESET}  →  #{GREEN}#{url}#{RESET}"
+  end
+
+  puts ""
+  puts "#{BOLD}#{GREEN}#{'=' * box_width}#{RESET}"
+  puts ""
+end
+
+# Cleanup function to stop all servers
+def cleanup
+  puts "\n#{YELLOW}Stopping all API servers...#{RESET}"
+  @pids.each do |pid|
+    begin
+      Process.kill('TERM', pid)
+    rescue Errno::ESRCH
+      # Process already dead
+    end
+  end
+
+  # Wait for all processes to terminate
+  @pids.each do |pid|
+    begin
+      Process.wait(pid)
+    rescue Errno::ECHILD
+      # Process already reaped
+    end
+  end
+
+  puts "#{GREEN}All servers stopped.#{RESET}"
+  exit 0
+end
+
+# Set up signal handlers
+Signal.trap('INT') { cleanup }
+Signal.trap('TERM') { cleanup }
+
+puts "#{BOLD}Starting all API services...#{RESET}"
+puts ""
+
+port = 3000
+api_ports = {}
+
+# Find all *_api directories and assign ports
+Dir.glob('*_api').sort.each do |api_dir|
+  dev_script = File.join(api_dir, 'bin', 'dev')
+
+  if File.directory?(api_dir) && File.executable?(dev_script)
+    # Find next available port
+    port = find_available_port(port)
+    api_ports[api_dir] = port
+    port += 1
+  end
+end
+
+# Display the port summary
+if api_ports.any?
+  display_port_summary(api_ports)
+end
+
+# Now start all the servers
+api_ports.each do |api_dir, assigned_port|
+  puts "Starting #{CYAN}#{api_dir}#{RESET} on port #{GREEN}#{assigned_port}#{RESET}..."
+
+  # Spawn the dev script with PORT environment variable
+  pid = Process.spawn(
+    { 'PORT' => assigned_port.to_s },
+    'bin/dev',
+    chdir: api_dir
+  )
+
+  @pids << pid
+end
+
+puts ""
+puts "#{BOLD}#{GREEN}All API services started.#{RESET} Press #{YELLOW}Ctrl+C#{RESET} to stop all servers."
+puts ""
+
+# Wait for all child processes
+begin
+  Process.waitall
+rescue Interrupt
+  cleanup
+end
