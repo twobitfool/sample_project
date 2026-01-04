@@ -36,12 +36,12 @@ class Device
 
 
   def total_count
-    readings.sum(&:count)
+    DeviceAndReadingStorage.instance.get_device_total_count(@id)
   end
 
 
   def latest_timestamp
-    readings.map(&:timestamp).max
+    DeviceAndReadingStorage.instance.get_device_latest_timestamp(@id)
   end
 
 

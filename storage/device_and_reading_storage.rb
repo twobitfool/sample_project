@@ -10,6 +10,7 @@ class DeviceAndReadingStorage
     @devices_by_id = {}
     @devices_by_uid = {}
     @readings_by_device_id = {}
+    @device_cache = {}
     @next_device_id = 1
     @next_reading_id = 1
   end
@@ -19,6 +20,7 @@ class DeviceAndReadingStorage
     device.instance_variable_set(:@id, @next_device_id)
     @devices_by_id[@next_device_id] = device
     @devices_by_uid[device.uid] = device
+    @device_cache[@next_device_id] = { total_count: 0, latest_timestamp: nil }
     @next_device_id += 1
     device
   end
@@ -40,7 +42,32 @@ class DeviceAndReadingStorage
     @readings_by_device_id[device_id] ||= []
     @readings_by_device_id[device_id] << reading
     @next_reading_id += 1
+    update_device_cache_for_reading(reading)
     reading
+  end
+
+
+  def update_device_cache_for_reading(reading)
+    cache = @device_cache[reading.device_id]
+    return unless cache
+
+    cache[:total_count] += reading.count
+
+    if cache[:latest_timestamp].nil? || reading.timestamp > cache[:latest_timestamp]
+      cache[:latest_timestamp] = reading.timestamp
+    end
+  end
+
+
+  def get_device_total_count(device_id)
+    cache = @device_cache[device_id]
+    cache ? cache[:total_count] : 0
+  end
+
+
+  def get_device_latest_timestamp(device_id)
+    cache = @device_cache[device_id]
+    cache ? cache[:latest_timestamp] : nil
   end
 
 
@@ -70,6 +97,7 @@ class DeviceAndReadingStorage
     @devices_by_id = {}
     @devices_by_uid = {}
     @readings_by_device_id = {}
+    @device_cache = {}
     @next_device_id = 1
     @next_reading_id = 1
   end
