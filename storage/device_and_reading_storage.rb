@@ -13,6 +13,7 @@ class DeviceAndReadingStorage
     @devices_by_id = {}
     @devices_by_uid = {}
     @readings_by_device_id = {}
+    @readings_by_device_id_and_timestamp = {}
     @device_cache = {}
     @next_device_id = 1
     @next_reading_id = 1
@@ -44,6 +45,8 @@ class DeviceAndReadingStorage
     device_id = reading.device_id
     @readings_by_device_id[device_id] ||= []
     @readings_by_device_id[device_id] << reading
+    @readings_by_device_id_and_timestamp[device_id] ||= {}
+    @readings_by_device_id_and_timestamp[device_id][reading.timestamp] = reading
     @next_reading_id += 1
     update_device_cache_for_reading(reading)
     reading
@@ -81,8 +84,8 @@ class DeviceAndReadingStorage
 
   def find_reading_by_device_and_timestamp(device_id, timestamp)
     target_time = timestamp.is_a?(Time) ? timestamp : Time.parse(timestamp)
-    readings = @readings_by_device_id[device_id] || []
-    readings.find { |reading| reading.timestamp == target_time }
+    device_readings = @readings_by_device_id_and_timestamp[device_id]
+    device_readings ? device_readings[target_time] : nil
   end
 
 
@@ -100,6 +103,7 @@ class DeviceAndReadingStorage
     @devices_by_id = {}
     @devices_by_uid = {}
     @readings_by_device_id = {}
+    @readings_by_device_id_and_timestamp = {}
     @device_cache = {}
     @next_device_id = 1
     @next_reading_id = 1
