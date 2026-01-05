@@ -150,18 +150,20 @@ load_tests/
 
 As of Jan 5, 2025 (commit 93f0be0)
 
-| Metric         | Express | Ruby   | Sinatra | Rails  |
-|----------------|---------|--------|---------|--------|
-| Total Requests | 26,459  | 26,283 | 26,048  | 11,772 |
-| Avg Latency    | 1.07ms  | 1.82ms | 2.64ms  | 128ms  |
-| p95 Latency    | 1.93ms  | 5.59ms | 7.84ms  | 293ms  |
-| p99 Latency    | 3.11ms  | 9.35ms | 19.35ms | 353ms  |
-| Error Rate     | 0.00%   | 0.00%  | 0.00%   | 23.45% |
-| Req/sec        | ~220    | ~219   | ~217    | ~97    |
+| Metric         | Express | Ruby   | Sinatra | Rails (in-mem db)  | Rails (on-disk db)  |
+|----------------|---------|--------|---------|--------------------|---------------------|
+| Total Requests | 26,459  | 26,283 | 26,048  |      11,772        |        9,368        |
+| Avg Latency    | 1.07ms  | 1.82ms | 2.64ms  |      128ms         |        187ms        |
+| p95 Latency    | 1.93ms  | 5.59ms | 7.84ms  |      293ms         |        442ms        |
+| p99 Latency    | 3.11ms  | 9.35ms | 19.35ms |      353ms         |        525ms        |
+| Error Rate     | 0.00%   | 0.00%  | 0.00%   |      23.45%        |        0.00%        |
+| Req/sec        | ~220    | ~219   | ~217    |      ~97           |        ~77          |
 
-Rails has a 23% error rate caused by:
-- SQLite3::LockedException: database table is locked
-- SQLite uses file-level locking and doesn't handle concurrent writes well. When multiple requests try to write simultaneously, they get lock errors.
+### Rails Performance
+- Rails (with the in-memory database) has a 23% error rate!
+- Switching to a standard on-disk SQLite database fixes the errors but degrades performance.
+- Using the in-memory storage classes results in similar performance to Sinatra and Ruby.
+
 
 ### Performance Rankings
 
