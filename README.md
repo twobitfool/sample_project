@@ -28,7 +28,7 @@ bin/test
 
 ## Project Structure
 
-- `ruby_api/` - Ruby implementation of the API
+- `sinatra_api/` - Sinatra-based API server
 - `storage/` - In-memory data storage classes
 - `tests/` - Test suite for the API implementation
 - `bin/` - Development and testing scripts
@@ -36,22 +36,17 @@ bin/test
 
 ## Future Improvements
 
-- Switch to a real web server (e.g. Puma, Unicorn)
-- Use a battle-tested web framework (e.g. Ruby on Rails)
-- Auth and security (API keys, HTTPS)
-- DoS protection, WAF, etc
-- Better docs, logging, and error handling
-- Load testing, rate limiting, and async storage processing
-- Persistent storage for device readings (with caching for recent data)
-  - Or more efficient memory-based storage
-    - Sorted linked list for storage of readings
-    - Automatic pruning of old readings
-    - Add mutexes for thread safety
-- Define and enforce behavior for edge cases:
-  - Should a device be created if there is an empty `readings` array?
-  - Does `count` have a maximum value? Are negative values allowed?
-  - Should devices be registered _before_ readings can be stored?
+| Topic | Notes |
+|-------|-------------|
+| **Auth** | API keys, HTTPS, pre-registered devices, etc. |
+| **Docs** | Swagger/OpenAPI spec |
+| **Storage** | PostgreSQL (and Redis) |
+| **DevOps** | Logging, metrics, and alerting |
+| **Stability** | Rate limiting, DoS protection, WAF, etc. |
+| **Performance** | Async queue for high-volume ingestion |
+| **Completeness** | Edge cases (empty `readings` array, min/max `count`) |
 
+---
 
 ## API Documentation
 
@@ -163,10 +158,10 @@ curl http://localhost:3000/devices/36d5658a-6908-479e-887e-a949ec199272/total_co
 
 ---
 
-## Extra Credit
+## Extra Credit?
 
-This project was structured to support multiple implementations of the API --
-each contained within its own `*_api` folder -- to explore how the same
+>This project was structured to support multiple implementations of the API --
+each contained within its own subfolder -- to explore how the same
 functionality can be achieved in different programming languages and frameworks.
-
-[Check out the full repository](https://github.com/twobitfool/sample_project) for more info!
+The full repository includes implementations in: Sinatra (Ruby), Ruby on Rails,
+Express (Node.js), and Plain Ruby (with no framework).
