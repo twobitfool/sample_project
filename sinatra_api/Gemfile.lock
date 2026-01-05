@@ -2,7 +2,7 @@ GEM
   remote: https://rubygems.org/
   specs:
     base64 (0.3.0)
-    json (2.18.0)
+    json (2.6.3)
     logger (1.7.0)
     mustermann (3.0.4)
       ruby2_keywords (~> 0.0.1)
@@ -30,10 +30,12 @@ GEM
     tilt (2.6.1)
 
 PLATFORMS
-  x86_64-darwin-20
+  arm64-darwin
+  x86_64-darwin
+  x86_64-linux
 
 DEPENDENCIES
-  json
+  json (~> 2.6.0)
   puma
   rackup
   sinatra

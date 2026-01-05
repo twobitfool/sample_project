@@ -10,7 +10,7 @@ bin/setup
 
 *Prerequisites:*
 - MacOS (or other POSIX-compliant OS)
-- Ruby (any version)
+- Ruby (v2.6+)
 
 ## Start API Server
 

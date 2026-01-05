@@ -4,4 +4,10 @@ set -e
 
 cd "$(dirname "$0")/.."
 
+# Check if bundler is installed, install if missing
+if ! gem list bundler -i > /dev/null 2>&1; then
+  echo "Installing bundler..."
+  gem install bundler --no-document
+fi
+
 bundle install
