@@ -35,7 +35,7 @@ PLATFORMS
   x86_64-linux
 
 DEPENDENCIES
-  json (~> 2.6.0)
+  json
   puma
   rackup
   sinatra
