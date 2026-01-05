@@ -145,3 +145,29 @@ load_tests/
 ├── run_comparison.sh        # Main runner script
 └── README.md
 ```
+
+## Latest Results
+
+As of Jan 5, 2025 (commit 93f0be0)
+
+| Metric         | Express | Ruby   | Sinatra | Rails  |
+|----------------|---------|--------|---------|--------|
+| Total Requests | 26,459  | 26,283 | 26,048  | 11,772 |
+| Avg Latency    | 1.07ms  | 1.82ms | 2.64ms  | 128ms  |
+| p95 Latency    | 1.93ms  | 5.59ms | 7.84ms  | 293ms  |
+| p99 Latency    | 3.11ms  | 9.35ms | 19.35ms | 353ms  |
+| Error Rate     | 0.00%   | 0.00%  | 0.00%   | 23.45% |
+| Req/sec        | ~220    | ~219   | ~217    | ~97    |
+
+Rails has a 23% error rate caused by:
+- SQLite3::LockedException: database table is locked
+- SQLite uses file-level locking and doesn't handle concurrent writes well. When multiple requests try to write simultaneously, they get lock errors.
+
+### Performance Rankings
+
+1. Express (Node.js) - Fastest, async I/O shines
+2. Ruby/WEBrick - Surprisingly good for single-threaded
+3. Sinatra - Solid performance with in-memory storage
+4. Rails - SQLite is the bottleneck, not the framework itself
+
+The in-memory storage implementations (Express, Ruby, Sinatra) all handled ~26k requests flawlessly. Rails with SQLite could only manage ~12k with significant errors.
