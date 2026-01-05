@@ -7,6 +7,23 @@ Dir.chdir(File.expand_path('..', __dir__))
 
 TEST_PORT = ENV['TEST_PORT'] || 8080
 
+# Color helpers
+def colorize(text, color_code)
+  "\e[#{color_code}m#{text}\e[0m"
+end
+
+def green(text)
+  colorize(text, 32)
+end
+
+def red(text)
+  colorize(text, 31)
+end
+
+def yellow(text)
+  colorize(text, 33)
+end
+
 # Find all *_api directories
 api_dirs = Dir.glob('*_api').select { |dir| File.directory?(dir) }
 
@@ -23,11 +40,33 @@ if test_files.empty?
   exit 1
 end
 
+def kill_processes_on_port(port)
+  # Find processes using the port with lsof
+  pids = `lsof -ti :#{port} 2>/dev/null`.strip.split("\n").reject(&:empty?)
+
+  if pids.any?
+    puts "Killing existing processes on port #{port}..."
+    pids.each do |pid|
+      begin
+        Process.kill('TERM', pid.to_i)
+        # Wait a bit for graceful shutdown
+        sleep 0.5
+        # Force kill if still running
+        Process.kill('KILL', pid.to_i) rescue nil
+      rescue Errno::ESRCH, Errno::EPERM
+        # Process already gone or permission denied, ignore
+      end
+    end
+    # Give processes time to fully terminate
+    sleep 0.5
+  end
+end
+
 def wait_for_server(port, timeout_seconds = 10)
   require 'net/http'
   require 'uri'
 
-  print "Waiting for server to start"
+  print "Waiting for response to GET /ping request"
   start_time = Time.now
 
   loop do
@@ -55,9 +94,10 @@ end
 all_passed = true
 
 api_dirs.each do |api_dir|
-  dev_path = File.join(api_dir, 'bin', 'dev')
+  dev_script = File.join('bin', 'dev')
+  dev_script_path = File.join(api_dir, dev_script)
 
-  unless File.exist?(dev_path)
+  unless File.exist?(dev_script_path)
     puts "Skipping #{api_dir}: no bin/dev found"
     next
   end
@@ -66,19 +106,22 @@ api_dirs.each do |api_dir|
   puts "Testing #{api_dir}"
   puts "="*60
 
+  # Kill any existing processes on the test port
+  kill_processes_on_port(TEST_PORT)
+
   # Start the server
   puts "Starting #{api_dir} server on port #{TEST_PORT}..."
   server_pid = spawn(
     { 'PORT' => TEST_PORT.to_s },
-    'bash',
-    dev_path,
+    dev_script,
+    chdir: api_dir,
     out: '/dev/null',
     err: '/dev/null'
   )
 
   # Wait for server to be ready
   unless wait_for_server(TEST_PORT)
-    puts "Failed to start server for #{api_dir}"
+    puts "\n#{red('✗')} #{api_dir}: #{red('FAILED')} (Server failed to start)"
     Process.kill('TERM', server_pid) rescue nil
     Process.wait(server_pid) rescue nil
     all_passed = false
@@ -110,16 +153,22 @@ api_dirs.each do |api_dir|
   Process.kill('TERM', server_pid) rescue nil
   Process.wait(server_pid) rescue nil
 
-  unless status.success?
+  # Display colored status for this API
+  if status.success?
+    puts "\n#{green('✓')} #{api_dir}: #{green('PASSED')}"
+  else
+    puts "\n#{red('✗')} #{api_dir}: #{red('FAILED')}"
     all_passed = false
   end
 end
 
 puts "\n" + "="*60
+puts "TEST SUMMARY"
+puts "="*60
 if all_passed
-  puts "All tests passed!"
+  puts green("✓ All tests passed!")
   exit 0
 else
-  puts "Some tests failed"
+  puts red("✗ Some tests failed")
   exit 1
 end
