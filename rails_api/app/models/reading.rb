@@ -1,6 +1,2 @@
-class Reading < ApplicationRecord
-  belongs_to :device
-
-  validates :timestamp, presence: true
-  validates :count, presence: true
-end
+# Use shared in-memory storage instead of ActiveRecord
+require_relative "../../../storage/reading"

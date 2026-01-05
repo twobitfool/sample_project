@@ -13,7 +13,7 @@ class DevicesController < ApplicationController
   private
 
   def find_device
-    @device = Device.find_by(uid: params[:id])
+    @device = Device.find_by_uid(params[:id])
     unless @device
       render json: { error: "Device not found" }, status: :not_found
     end

@@ -18,14 +18,11 @@ class ReadingsController < ApplicationController
       return render json: { error: validation_error }, status: :bad_request
     end
 
-    device = Device.find_or_create_by!(uid: device_uid)
+    device = Device.find_by_uid(device_uid) || Device.create!(uid: device_uid)
 
     readings_data.each do |reading_data|
-      timestamp = Time.parse(reading_data["timestamp"].to_s)
-      count = reading_data["count"].to_i
-
-      unless device.readings.exists?(timestamp: timestamp)
-        device.readings.create!(timestamp: timestamp, count: count)
+      device.readings.find_or_create_by(timestamp: reading_data["timestamp"]) do |r|
+        r.count = reading_data["count"]
       end
     end
 
