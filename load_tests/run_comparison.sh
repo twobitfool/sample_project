@@ -22,9 +22,8 @@ RESULTS_DIR="results"
 # Port order matches bin/dev alphabetical sort of *_api directories
 APIS=(
   "express:3000"
-  "rails:3001"
-  "ruby:3002"
-  "sinatra:3003"
+  "ruby:3001"
+  "sinatra:3002"
 )
 
 # Colors for output

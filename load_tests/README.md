@@ -1,6 +1,6 @@
 # Load Testing with k6
 
-Performance benchmarking suite for comparing the four API implementations.
+Performance benchmarking suite for comparing the three API implementations.
 
 ## Prerequisites
 
@@ -56,10 +56,10 @@ Set via the `PROFILE` environment variable or second argument:
 ### Run Against Single API
 
 ```bash
-# Test Rails API only
+# Test Express API only
 k6 run -e BASE_URL=http://localhost:3000 scripts/mixed_workload.js
 
-# Test Express API with heavy load
+# Test Sinatra API with heavy load
 k6 run -e BASE_URL=http://localhost:3002 -e PROFILE=heavy scripts/readings.js
 ```
 
@@ -67,20 +67,19 @@ k6 run -e BASE_URL=http://localhost:3002 -e PROFILE=heavy scripts/readings.js
 
 ```bash
 # JSON output
-k6 run --out json=results/rails.json -e BASE_URL=http://localhost:3000 scripts/mixed_workload.js
+k6 run --out json=results/express.json -e BASE_URL=http://localhost:3000 scripts/mixed_workload.js
 
 # CSV output
-k6 run --out csv=results/rails.csv -e BASE_URL=http://localhost:3000 scripts/mixed_workload.js
+k6 run --out csv=results/express.csv -e BASE_URL=http://localhost:3000 scripts/mixed_workload.js
 ```
 
 ## API Ports
 
 | API | Port |
 |-----|------|
-| Rails | 3000 |
-| Sinatra | 3001 |
-| Express | 3002 |
-| Ruby | 3003 |
+| Express | 3000 |
+| Ruby | 3001 |
+| Sinatra | 3002 |
 
 ## Interpreting Results
 
@@ -95,10 +94,9 @@ k6 run --out csv=results/rails.csv -e BASE_URL=http://localhost:3000 scripts/mix
 
 | API | Notes |
 |-----|-------|
-| **Rails** | Uses SQLite (disk I/O); full framework overhead |
-| **Sinatra** | Lightweight Ruby; in-memory storage |
 | **Express** | Node.js event loop; efficient async I/O |
 | **Ruby** | WEBrick is single-threaded; educational only |
+| **Sinatra** | Lightweight Ruby; in-memory storage |
 
 ## Troubleshooting
 
@@ -128,7 +126,6 @@ bin/dev
 
 - Reduce load profile (`light` instead of `moderate`)
 - Check API logs for errors
-- Ensure database is set up for Rails (`cd rails_api && bin/setup`)
 
 ## File Structure
 
@@ -160,10 +157,10 @@ As of Jan 5, 2025 (commit 93f0be0)
 | Req/sec        | ~220    | ~219   | ~217    |      ~97           |        ~77          |
 
 ### Rails Performance
+
 - Rails (with the in-memory database) has a 23% error rate!
 - Switching to a standard on-disk SQLite database fixes the errors but degrades performance.
 - Using the in-memory storage classes results in similar performance to Sinatra and Ruby.
-
 
 ### Performance Rankings
 
