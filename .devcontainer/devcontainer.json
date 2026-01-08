@@ -1,0 +1,15 @@
+{
+  "name": "Sample Project",
+  "build": {
+    "dockerfile": "../Dockerfile"
+  },
+  "postCreateCommand": "bin/setup",
+  "forwardPorts": [3000],
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "Shopify.ruby-lsp"
+      ]
+    }
+  }
+}

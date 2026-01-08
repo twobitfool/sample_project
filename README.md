@@ -2,7 +2,20 @@
 
 A simple API for storing and retrieving device readings.
 
-## Setup Option 1: Docker (Recommended)
+## Setup Option 1: GitHub Codespaces (Recommended)
+
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/twobitfool/sample_project?ref=sinatra)
+
+Click the button above to launch a fully configured development environment in your browser.
+
+Once the Codespace is ready:
+
+```bash
+bin/dev     # Start API server
+bin/test    # Run tests
+```
+
+## Setup Option 2: Docker
 
 Works on any OS (Windows, macOS, Linux).
 
@@ -22,7 +35,7 @@ To verify the API is running, visit the `/ping` endpoint (e.g., http://localhost
 docker compose run --rm test
 ```
 
-## Setup Option 2: Local Setup
+## Setup Option 3: Local Setup
 
 *Prerequisites:*
 - MacOS (or other POSIX-compliant OS)
