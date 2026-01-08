@@ -7,8 +7,6 @@ RUN apt-get update -qq && \
         build-essential \
         curl \
         git \
-        nodejs \
-        npm \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /project
@@ -19,5 +17,5 @@ COPY . .
 # Install all dependencies using the project's setup script
 RUN bin/setup
 
-# Default command starts all APIs
+# Default command starts API
 CMD ["bin/dev"]

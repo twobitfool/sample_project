@@ -1,20 +1,20 @@
 # Load Testing with k6
 
-Performance benchmarking suite for comparing the three API implementations.
+Performance benchmarking suite for the Sinatra API.
 
 ## Prerequisites
 
 - **k6** - Install with `brew install k6` (macOS) or see [k6.io/docs/get-started/installation](https://k6.io/docs/get-started/installation/)
 - **Node.js** - Required for the comparison summary script
-- **APIs running** - Start all APIs with `bin/dev` from the project root
+- **API running** - Start the API with `bin/dev` from the project root
 
 ## Quick Start
 
 ```bash
-# Start all APIs (from project root)
+# Start the API (from project root)
 cd .. && bin/dev
 
-# In another terminal, run the comparison
+# In another terminal, run the load test
 cd load_tests
 ./run_comparison.sh
 ```
@@ -39,7 +39,7 @@ Set via the `PROFILE` environment variable or second argument:
 
 ## Usage
 
-### Run Full Comparison
+### Run Load Test
 
 ```bash
 # Default: mixed_workload with moderate profile
@@ -53,33 +53,31 @@ Set via the `PROFILE` environment variable or second argument:
 ./run_comparison.sh scripts/mixed_workload.js heavy
 ```
 
-### Run Against Single API
+### Run Directly with k6
 
 ```bash
-# Test Express API only
+# Test Sinatra API
 k6 run -e BASE_URL=http://localhost:3000 scripts/mixed_workload.js
 
-# Test Sinatra API with heavy load
-k6 run -e BASE_URL=http://localhost:3002 -e PROFILE=heavy scripts/readings.js
+# With heavy load
+k6 run -e BASE_URL=http://localhost:3000 -e PROFILE=heavy scripts/readings.js
 ```
 
 ### Export Results
 
 ```bash
 # JSON output
-k6 run --out json=results/express.json -e BASE_URL=http://localhost:3000 scripts/mixed_workload.js
+k6 run --out json=results/sinatra.json -e BASE_URL=http://localhost:3000 scripts/mixed_workload.js
 
 # CSV output
-k6 run --out csv=results/express.csv -e BASE_URL=http://localhost:3000 scripts/mixed_workload.js
+k6 run --out csv=results/sinatra.csv -e BASE_URL=http://localhost:3000 scripts/mixed_workload.js
 ```
 
-## API Ports
+## API Port
 
 | API | Port |
 |-----|------|
-| Express | 3000 |
-| Ruby | 3001 |
-| Sinatra | 3002 |
+| Sinatra | 3000 |
 
 ## Interpreting Results
 
@@ -89,14 +87,6 @@ k6 run --out csv=results/express.csv -e BASE_URL=http://localhost:3000 scripts/m
 - **Avg/p95/p99 Latency** - Lower is better (response time)
 - **Error Rate** - Lower is better (should be near 0%)
 - **Req/sec** - Higher is better (throughput)
-
-### Expected Characteristics
-
-| API | Notes |
-|-----|-------|
-| **Express** | Node.js event loop; efficient async I/O |
-| **Ruby** | WEBrick is single-threaded; educational only |
-| **Sinatra** | Lightweight Ruby; in-memory storage |
 
 ## Troubleshooting
 
@@ -115,7 +105,7 @@ sudo apt-get update && sudo apt-get install k6
 
 ### "No APIs are running"
 
-Start the APIs from the project root:
+Start the API from the project root:
 
 ```bash
 cd /path/to/sample_project
@@ -143,7 +133,7 @@ load_tests/
 └── README.md
 ```
 
-## Latest Results
+## Historical Results
 
 As of Jan 5, 2025 (commit 93f0be0)
 

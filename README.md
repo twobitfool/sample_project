@@ -14,7 +14,7 @@ Works on any OS (Windows, macOS, Linux).
 docker compose up
 ```
 
-To verify an API is running, visit the `/ping` endpoint (e.g., http://localhost:3002/ping). The root path (`/`) intentionally returns a 404 error.
+To verify the API is running, visit the `/ping` endpoint (e.g., http://localhost:3000/ping). The root path (`/`) intentionally returns a 404 error.
 
 ### Running Tests
 
@@ -30,7 +30,7 @@ docker compose run --rm test
 
 ```bash
 bin/setup   # Install dependencies
-bin/dev     # Start all API servers
+bin/dev     # Start API server
 ```
 
 ### Running Tests
@@ -41,8 +41,6 @@ bin/test
 
 ## Project Structure
 
-- `express_api/` - Express (Node.js) API server
-- `ruby_api/` - Plain Ruby API server (WEBrick)
 - `sinatra_api/` - Sinatra-based API server
 - `storage/` - In-memory data storage classes
 - `tests/` - Test suite for the API implementation
@@ -178,5 +176,4 @@ curl http://localhost:3000/devices/36d5658a-6908-479e-887e-a949ec199272/total_co
 >This project was structured to support multiple implementations of the API --
 each contained within its own subfolder -- to explore how the same
 functionality can be achieved in different programming languages and frameworks.
-The repository includes implementations in: Sinatra (Ruby), Express (Node.js),
-and Plain Ruby (with no framework).
+The repository includes an implementation in Sinatra (Ruby).

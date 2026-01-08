@@ -19,11 +19,8 @@ PROFILE="${2:-moderate}"
 RESULTS_DIR="results"
 
 # API configurations: name:port
-# Port order matches bin/dev alphabetical sort of *_api directories
 APIS=(
-  "express:3000"
-  "ruby:3001"
-  "sinatra:3002"
+  "sinatra:3000"
 )
 
 # Colors for output
