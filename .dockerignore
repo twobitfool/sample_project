@@ -1,0 +1,32 @@
+# Git
+.git
+.gitignore
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+log/
+
+# Temp files
+tmp/
+temp/
+
+# Test artifacts
+coverage/
+load_tests/results/
+
+# Node
+node_modules/
+
+# Ruby
+.bundle/
+vendor/bundle/

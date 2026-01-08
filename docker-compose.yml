@@ -1,0 +1,53 @@
+services:
+  express:
+    build: .
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/project
+    working_dir: /project/express_api
+    environment:
+      - PORT=3000
+    command: bin/dev
+
+  rails:
+    build: .
+    ports:
+      - "3001:3001"
+    volumes:
+      - .:/project
+    working_dir: /project/rails_api
+    environment:
+      - PORT=3001
+    command: bin/dev
+
+  ruby:
+    build: .
+    ports:
+      - "3002:3002"
+    volumes:
+      - .:/project
+    working_dir: /project/ruby_api
+    environment:
+      - PORT=3002
+    command: bin/dev
+
+  sinatra:
+    build: .
+    ports:
+      - "3003:3003"
+    volumes:
+      - .:/project
+    working_dir: /project/sinatra_api
+    environment:
+      - PORT=3003
+    command: bin/dev
+
+  test:
+    build: .
+    volumes:
+      - .:/project
+    working_dir: /project
+    command: bin/test
+    profiles:
+      - test

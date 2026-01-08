@@ -2,25 +2,38 @@
 
 A simple API for storing and retrieving device readings.
 
-## Setup
+## Setup Option 1: Docker (Recommended)
+
+Works on any OS (Windows, macOS, Linux).
+
+*Prerequisites:*
+- Install [Docker Desktop](https://www.docker.com/products/docker-desktop/)
+- Make sure Docker Desktop is running before proceeding
 
 ```bash
-bin/setup
+docker compose up
 ```
+
+To verify an API is running, visit the `/ping` endpoint (e.g., http://localhost:3003/ping). The root path (`/`) intentionally returns a 404 error.
+
+### Running Tests
+
+```bash
+docker compose run --rm test
+```
+
+## Setup Option 2: Local Setup
 
 *Prerequisites:*
 - MacOS (or other POSIX-compliant OS)
-- Ruby v3+
-
-## Start API Server
+- Ruby v3.2.2
 
 ```bash
-bin/dev
+bin/setup   # Install dependencies
+bin/dev     # Start all API servers
 ```
 
-Press Ctrl+C to stop the server.
-
-## Run Tests
+### Running Tests
 
 ```bash
 bin/test
